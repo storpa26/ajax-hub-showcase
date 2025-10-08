@@ -5,7 +5,7 @@ import { SpecsModule } from "@/components/SpecsModule";
 import { CompatibilityGallery, type CompatibleDevice } from "@/components/CompatibilityGallery";
 import { CapacityOverview } from "@/components/CapacityOverview";
 import { AddonsCarousel } from "@/components/AddonsCarousel";
-import { PricingCard } from "@/components/PricingCard";
+
 import { TechSpecs } from "@/components/TechSpecs";
 import { useToast } from "@/hooks/use-toast";
 
@@ -74,11 +74,6 @@ const Index = () => {
       <CapacityOverview capacity={capacity} />
       
       <AddonsCarousel />
-      
-      <PricingCard 
-        selectedVariant={selectedVariant}
-        onVariantChange={setSelectedVariant}
-      />
       
       <TechSpecs selectedVariant={selectedVariant} />
     </div>

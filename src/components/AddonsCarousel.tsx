@@ -6,7 +6,6 @@ interface Addon {
   id: string;
   name: string;
   description: string;
-  price: string;
   image?: string;
 }
 
@@ -15,31 +14,26 @@ const addons: Addon[] = [
     id: "backup-battery",
     name: "Extended Backup Battery",
     description: "24-hour backup power supply",
-    price: "£89",
   },
   {
     id: "installation",
     name: "Professional Installation",
     description: "Expert setup and configuration",
-    price: "£199",
   },
   {
     id: "monitoring",
     name: "24/7 Monitoring (12 months)",
     description: "Professional monitoring service",
-    price: "£299/year",
   },
   {
     id: "warranty",
     name: "Extended Warranty (3 years)",
     description: "Additional coverage and support",
-    price: "£149",
   },
   {
     id: "training",
     name: "User Training Session",
     description: "1-hour personalized training",
-    price: "£79",
   },
 ];
 
@@ -56,7 +50,6 @@ export const AddonsCarousel = () => {
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg mb-2">{addon.name}</h3>
                   <p className="text-sm text-muted-foreground mb-3">{addon.description}</p>
-                  <p className="text-xl font-bold text-primary">{addon.price}</p>
                 </div>
                 
                 <Button variant="outline" size="sm" className="w-full">
