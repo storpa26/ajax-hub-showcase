@@ -25,37 +25,54 @@ const Index = () => {
   const handleAddDevice = (device: CompatibleDevice) => {
     const newCapacity = { ...capacity };
     
-    // Increment based on device category
+    // Check limits before adding
     if (device.category === "sensor" || device.category === "keypad" || device.category === "extender") {
+      if (newCapacity.devices >= 100) {
+        toast({
+          title: "Cannot add device",
+          description: "Device limit reached (100 max).",
+          variant: "destructive",
+        });
+        return;
+      }
       newCapacity.devices += 1;
     } else if (device.category === "siren") {
+      if (newCapacity.devices >= 100) {
+        toast({
+          title: "Cannot add device",
+          description: "Device limit reached (100 max).",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (newCapacity.sirens >= 10) {
+        toast({
+          title: "Cannot add siren",
+          description: "Siren limit reached (10 max).",
+          variant: "destructive",
+        });
+        return;
+      }
       newCapacity.devices += 1;
       newCapacity.sirens += 1;
     } else if (device.category === "camera") {
+      if (newCapacity.cameras >= 25) {
+        toast({
+          title: "Cannot add camera",
+          description: "Camera limit reached (25 max).",
+          variant: "destructive",
+        });
+        return;
+      }
       newCapacity.cameras += 1;
     }
     
     setCapacity(newCapacity);
     
-    // Show validation if over capacity
-    if (newCapacity.devices > 100) {
-      toast({
-        title: "Over capacity",
-        description: "Device limit exceeded (100 max). Consider removing items.",
-        variant: "destructive",
-      });
-    } else if (newCapacity.sirens > 10) {
-      toast({
-        title: "Over capacity",
-        description: "Siren limit exceeded (10 max). Consider removing items.",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Device added",
-        description: `${device.name} added to your build.`,
-      });
-    }
+    toast({
+      title: "Device added",
+      description: `${device.name} added to your build.`,
+    });
   };
 
   return (

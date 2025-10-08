@@ -80,36 +80,84 @@ export const CapacityOverview = ({ capacity }: CapacityOverviewProps) => {
                   </p>
                 )}
               </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">Cameras</span>
+                  <span className="text-sm text-muted-foreground">
+                    {capacity.cameras} / {limits.cameras}
+                  </span>
+                </div>
+                <Progress 
+                  value={(capacity.cameras / limits.cameras) * 100}
+                  className={isOverCapacity(capacity.cameras, limits.cameras) ? "border-destructive border-2" : ""}
+                />
+                {isOverCapacity(capacity.cameras, limits.cameras) && (
+                  <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    Over capacity limit
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">Users</span>
+                  <span className="text-sm text-muted-foreground">
+                    {capacity.users} / {limits.users}
+                  </span>
+                </div>
+                <Progress 
+                  value={(capacity.users / limits.users) * 100}
+                  className={isOverCapacity(capacity.users, limits.users) ? "border-destructive border-2" : ""}
+                />
+                {isOverCapacity(capacity.users, limits.users) && (
+                  <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    Over capacity limit
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">Scenarios</span>
+                  <span className="text-sm text-muted-foreground">
+                    {capacity.scenarios} / {limits.scenarios}
+                  </span>
+                </div>
+                <Progress 
+                  value={(capacity.scenarios / limits.scenarios) * 100}
+                  className={isOverCapacity(capacity.scenarios, limits.scenarios) ? "border-destructive border-2" : ""}
+                />
+                {isOverCapacity(capacity.scenarios, limits.scenarios) && (
+                  <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    Over capacity limit
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Counters Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
+            <div className="grid grid-cols-1 gap-4 pt-4 border-t">
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Groups</p>
-                <p className="text-lg font-semibold">
-                  {capacity.groups} / {limits.groups}
-                </p>
-              </div>
-              
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Cameras</p>
-                <p className="text-lg font-semibold">
-                  {capacity.cameras} / {limits.cameras}
-                </p>
-              </div>
-              
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Users</p>
-                <p className="text-lg font-semibold">
-                  {capacity.users} / {limits.users}
-                </p>
-              </div>
-              
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Scenarios</p>
-                <p className="text-lg font-semibold">
-                  {capacity.scenarios} / {limits.scenarios}
-                </p>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">Groups</span>
+                  <span className="text-sm text-muted-foreground">
+                    {capacity.groups} / {limits.groups}
+                  </span>
+                </div>
+                <Progress 
+                  value={(capacity.groups / limits.groups) * 100}
+                  className={isOverCapacity(capacity.groups, limits.groups) ? "border-destructive border-2" : ""}
+                />
+                {isOverCapacity(capacity.groups, limits.groups) && (
+                  <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    Over capacity limit
+                  </p>
+                )}
               </div>
             </div>
           </div>
