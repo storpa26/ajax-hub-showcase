@@ -9,28 +9,27 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 215 25% 27%;
+    --foreground: 0 0% 1%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 27%;
+    --card-foreground: 0 0% 1%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 27%;
+    --popover-foreground: 0 0% 1%;
 
-    /* CheapAlarms Rose/Pink Primary */
-    --primary: 346 77% 52%;
+    /* CheapAlarms Brand Colors */
+    --primary: 346 77% 52%; /* #c95375 */
     --primary-foreground: 0 0% 100%;
     --primary-hover: 346 77% 46%;
 
-    /* Slate Secondary */
-    --secondary: 215 20% 96%;
-    --secondary-foreground: 215 25% 27%;
+    --secondary: 188 56% 37%; /* #288896 teal */
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 215 20% 96%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 346 77% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 320 100% 70%; /* #ff66c4 accent pink */
+    --accent-foreground: 0 0% 1%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -41,7 +40,12 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Custom design tokens */
+    /* CheapAlarms Custom Tokens */
+    --brand-black: 0 0% 1%; /* #020202 */
+    --brand-teal: 188 56% 37%; /* #288896 */
+    --brand-dark-teal: 190 100% 20%; /* #005667 */
+    --brand-new-teal: 187 99% 29%; /* #018295 */
+    
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
@@ -91,5 +95,6 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
   }
 }
