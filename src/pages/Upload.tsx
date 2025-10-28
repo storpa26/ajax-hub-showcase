@@ -73,7 +73,15 @@ export default function Upload() {
   };
 
   const handleSubmit = async () => {
-    if (!quoteData || !estimateId || !locationId) return;
+    if (!quoteData) return;
+    if (!estimateId || !locationId) {
+      toast({
+        title: "Missing link details",
+        description: "Your upload link is incomplete. Please use the full link with estimateId and locationId.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const validation = validateSubmission(quoteData);
     if (!validation.valid) {
@@ -232,6 +240,15 @@ export default function Upload() {
             <strong>Tip:</strong> You can take photos directly from your phone's camera. Photos help us optimise your quote and installation time.
           </AlertDescription>
         </Alert>
+
+        {!locationId && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              This link is missing the locationId parameter. Submitting photos requires both estimateId and locationId. Please use the full link provided in your message.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs defaultValue="general" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
