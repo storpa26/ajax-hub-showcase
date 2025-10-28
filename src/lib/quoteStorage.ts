@@ -34,6 +34,64 @@ export interface QuoteData {
   submitted: boolean;
 }
 
+// API constants
+const API_BASE = "https://cheapalarms.com.au";
+const TEST_ESTIMATE_ID = "68fddd36a5d4856a0fd07d40";
+const TEST_LOCATION_ID = "aLTXtdwNknfmEFo3WBIX";
+
+// Fetch estimate from WordPress API
+export async function fetchEstimate(estimateId?: string, locationId?: string): Promise<QuoteData> {
+  const finalEstimateId = estimateId || TEST_ESTIMATE_ID;
+  const finalLocationId = locationId || TEST_LOCATION_ID;
+  
+  const url = `${API_BASE}/wp-json/ca/v1/estimate?estimateId=${finalEstimateId}&locationId=${finalLocationId}`;
+  
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch estimate: ${response.statusText}`);
+  }
+  
+  const data = await response.json();
+  
+  // Transform API response to QuoteData format
+  const items: QuoteItem[] = (data.items || []).map((item: any, index: number) => ({
+    sku: `ITEM-${index + 1}`,
+    name: item.name || "Unnamed Item",
+    qty: item.qty || item.quantity || 1,
+    desc: item.description || "",
+  }));
+  
+  // Initialize empty photo slots for each item
+  const devices: Record<string, DeviceSlot[]> = {};
+  items.forEach((item) => {
+    devices[item.sku] = Array.from({ length: item.qty }, () => ({
+      images: [],
+      notes: "",
+    }));
+  });
+  
+  // Try to load saved photos from localStorage
+  const savedData = localStorage.getItem(`cheapalarms:quote:${finalEstimateId}`);
+  const savedPhotos = savedData ? JSON.parse(savedData).photos : null;
+  
+  return {
+    quoteId: data.estimateId || finalEstimateId,
+    customer: {
+      name: data.contact?.name || data.contact?.email?.split("@")[0] || "Customer",
+      email: data.contact?.email || "",
+      phone: data.contact?.phone || "",
+      address: data.contact?.address || "",
+    },
+    solution: data.title || "Estimate",
+    items,
+    photos: savedPhotos || {
+      general: [],
+      devices,
+    },
+    submitted: false,
+  };
+}
+
 const STORAGE_KEY_PREFIX = "cheapalarms:quote:";
 
 const defaultQuoteData: QuoteData = {

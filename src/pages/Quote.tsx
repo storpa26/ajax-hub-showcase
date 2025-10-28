@@ -5,26 +5,67 @@ import { ItemsTable } from "@/components/ItemsTable";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { getQuoteData, QuoteData } from "@/lib/quoteStorage";
-import { ChevronDown, Info } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { fetchEstimate, QuoteData } from "@/lib/quoteStorage";
+import { ChevronDown, Info, AlertTriangle } from "lucide-react";
 
 export default function Quote() {
   const [searchParams] = useSearchParams();
-  const quoteId = searchParams.get("quoteId") || "QA-1001";
+  const estimateId = searchParams.get("estimateId");
+  const locationId = searchParams.get("locationId");
   const [quoteData, setQuoteData] = useState<QuoteData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const data = getQuoteData(quoteId);
-    setQuoteData(data);
-  }, [quoteId]);
+    async function loadEstimate() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await fetchEstimate(estimateId || undefined, locationId || undefined);
+        setQuoteData(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load estimate");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadEstimate();
+  }, [estimateId, locationId]);
 
-  if (!quoteData) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !quoteData) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md mx-4">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Estimate Not Found
+            </CardTitle>
+            <CardDescription>
+              {error || "Could not load estimate data. Please check your link or try again."}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-background pb-8">
-      <QuoteHeader quoteId={quoteData.quoteId} />
+      <QuoteHeader quoteId={quoteData.quoteId} locationId={locationId || undefined} />
 
       <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
         {/* Customer Info */}

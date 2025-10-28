@@ -5,11 +5,12 @@ import { Camera } from "lucide-react";
 
 interface QuoteHeaderProps {
   quoteId: string;
+  locationId?: string;
   status?: string;
   showPhotoButton?: boolean;
 }
 
-export function QuoteHeader({ quoteId, status = "Awaiting Photos", showPhotoButton = true }: QuoteHeaderProps) {
+export function QuoteHeader({ quoteId, locationId, status = "Awaiting Photos", showPhotoButton = true }: QuoteHeaderProps) {
   const navigate = useNavigate();
 
   return (
@@ -27,7 +28,7 @@ export function QuoteHeader({ quoteId, status = "Awaiting Photos", showPhotoButt
           </div>
           {showPhotoButton && (
             <Button 
-              onClick={() => navigate(`/upload?quoteId=${quoteId}`)}
+              onClick={() => navigate(`/upload?estimateId=${quoteId}${locationId ? `&locationId=${locationId}` : ''}`)}
               className="bg-primary text-primary-foreground hover:bg-primary-hover"
             >
               <Camera className="mr-2 h-4 w-4" />

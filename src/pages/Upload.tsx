@@ -7,9 +7,10 @@ import { StickyActionsBar } from "@/components/StickyActionsBar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getQuoteData, saveQuoteData, validateSubmission, QuoteData } from "@/lib/quoteStorage";
+import { Skeleton } from "@/components/ui/skeleton";
+import { fetchEstimate, saveQuoteData, validateSubmission, QuoteData } from "@/lib/quoteStorage";
 import { useToast } from "@/hooks/use-toast";
-import { Info, CheckCircle2 } from "lucide-react";
+import { Info, CheckCircle2, AlertTriangle } from "lucide-react";
 
 const GENERAL_PHOTO_CHECKLIST = [
   "Front of property",
@@ -23,15 +24,34 @@ export default function Upload() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const quoteId = searchParams.get("quoteId") || "QA-1001";
+  const estimateId = searchParams.get("estimateId");
+  const locationId = searchParams.get("locationId");
   const [quoteData, setQuoteData] = useState<QuoteData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const data = getQuoteData(quoteId);
-    setQuoteData(data);
-  }, [quoteId]);
+    async function loadEstimate() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await fetchEstimate(estimateId || undefined, locationId || undefined);
+        setQuoteData(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load estimate");
+        toast({
+          title: "Error loading estimate",
+          description: "Could not fetch estimate data. Please check your link and try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadEstimate();
+  }, [estimateId, locationId, toast]);
 
   const handleSave = () => {
     if (!quoteData) return;
@@ -66,17 +86,43 @@ export default function Upload() {
         title: "Photos submitted!",
         description: "Your photos have been sent to our team.",
       });
-      navigate(`/thank-you?quoteId=${quoteId}`);
+      navigate(`/thank-you?estimateId=${quoteData.quoteId}${locationId ? `&locationId=${locationId}` : ''}`);
     }, 1000);
   };
 
-  if (!quoteData) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8 max-w-5xl space-y-6">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-96 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !quoteData) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md mx-4">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Estimate Not Found
+            </CardTitle>
+            <CardDescription>
+              {error || "Could not load estimate data. Please check your link or try again."}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <QuoteHeader quoteId={quoteData.quoteId} showPhotoButton={false} />
+      <QuoteHeader quoteId={quoteData.quoteId} locationId={locationId || undefined} showPhotoButton={false} />
 
       <div className="container mx-auto px-4 py-8 max-w-5xl space-y-6">
         <Alert className="bg-secondary/20 border-secondary">
