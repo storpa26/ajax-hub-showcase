@@ -9,6 +9,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchEstimate, saveQuoteData, validateSubmission, QuoteData } from "@/lib/quoteStorage";
+import { 
+  startUploadSession, 
+  uploadImage, 
+  dataUrlToFile, 
+  mapPhotosToEstimate, 
+  applyPhotosToEstimate,
+  PhotoMapping 
+} from "@/lib/uploadApi";
 import { useToast } from "@/hooks/use-toast";
 import { Info, CheckCircle2, AlertTriangle } from "lucide-react";
 
@@ -64,8 +72,8 @@ export default function Upload() {
     setTimeout(() => setIsSaving(false), 500);
   };
 
-  const handleSubmit = () => {
-    if (!quoteData) return;
+  const handleSubmit = async () => {
+    if (!quoteData || !estimateId || !locationId) return;
 
     const validation = validateSubmission(quoteData);
     if (!validation.valid) {
@@ -78,16 +86,109 @@ export default function Upload() {
     }
 
     setIsSubmitting(true);
-    const updatedData = { ...quoteData, submitted: true };
-    saveQuoteData(updatedData);
 
-    setTimeout(() => {
+    try {
+      // Step 1: Start upload session
+      toast({
+        title: "Starting upload...",
+        description: "Initializing photo upload session.",
+      });
+      const token = await startUploadSession(estimateId, locationId);
+
+      // Step 2: Upload all photos and build mappings
+      const photoMappings: PhotoMapping[] = [];
+      let totalPhotos = 0;
+      let uploadedPhotos = 0;
+
+      // Count total photos
+      totalPhotos = quoteData.photos.general.length;
+      Object.values(quoteData.photos.devices).forEach((slots) => {
+        slots.forEach((slot) => {
+          totalPhotos += slot.images.length;
+        });
+      });
+
+      toast({
+        title: "Uploading photos...",
+        description: `Uploading ${totalPhotos} photos. Please wait...`,
+      });
+
+      // Upload general photos (not mapped to specific items)
+      for (const photo of quoteData.photos.general) {
+        const file = dataUrlToFile(photo.dataUrl, `general-${photo.id}.jpg`);
+        await uploadImage(file, token, photo.label || "General site photo");
+        uploadedPhotos++;
+      }
+
+      // Upload device-specific photos
+      const itemsArray = quoteData.items;
+      for (let itemIndex = 0; itemIndex < itemsArray.length; itemIndex++) {
+        const item = itemsArray[itemIndex];
+        const slots = quoteData.photos.devices[item.sku] || [];
+
+        for (let slotIndex = 0; slotIndex < slots.length; slotIndex++) {
+          const slot = slots[slotIndex];
+          const fileIds: string[] = [];
+
+          for (const photo of slot.images) {
+            const file = dataUrlToFile(
+              photo.dataUrl,
+              `${item.sku}-slot${slotIndex}-${photo.id}.jpg`
+            );
+            const uploadResult = await uploadImage(
+              file,
+              token,
+              photo.label || `${item.name} - Location ${slotIndex + 1}`
+            );
+            fileIds.push(uploadResult.fileId);
+            uploadedPhotos++;
+          }
+
+          if (fileIds.length > 0) {
+            photoMappings.push({
+              itemIndex,
+              itemName: item.name,
+              slotIndex,
+              fileIds,
+            });
+          }
+        }
+      }
+
+      // Step 3: Map photos to estimate items
+      toast({
+        title: "Mapping photos...",
+        description: "Linking photos to estimate items.",
+      });
+      await mapPhotosToEstimate(estimateId, locationId, token, photoMappings);
+
+      // Step 4: Apply photos to estimate in GHL
+      toast({
+        title: "Finalizing...",
+        description: "Applying photos to your estimate.",
+      });
+      const applyResult = await applyPhotosToEstimate(estimateId, locationId, token);
+
+      // Step 5: Mark as submitted and save
+      const updatedData = { ...quoteData, submitted: true };
+      saveQuoteData(updatedData);
+
+      // Success!
       toast({
         title: "Photos submitted!",
-        description: "Your photos have been sent to our team.",
+        description: `${uploadedPhotos} photos uploaded and applied to your estimate.`,
       });
+
       navigate(`/thank-you?estimateId=${quoteData.quoteId}${locationId ? `&locationId=${locationId}` : ''}`);
-    }, 1000);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Failed to upload photos. Please try again.",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
