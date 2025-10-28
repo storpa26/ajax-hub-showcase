@@ -74,13 +74,29 @@ export async function fetchEstimate(estimateId?: string, locationId?: string): P
   const savedData = localStorage.getItem(`cheapalarms:quote:${finalEstimateId}`);
   const savedPhotos = savedData ? JSON.parse(savedData).photos : null;
   
+  // Format address object to string
+  const formatAddress = (addr: any): string => {
+    if (typeof addr === "string") return addr;
+    if (!addr) return "";
+    
+    const parts = [
+      addr.addressLine1,
+      addr.city,
+      addr.state,
+      addr.postalCode,
+      addr.countryCode
+    ].filter(Boolean);
+    
+    return parts.join(", ");
+  };
+  
   return {
     quoteId: data.estimateId || finalEstimateId,
     customer: {
       name: data.contact?.name || data.contact?.email?.split("@")[0] || "Customer",
       email: data.contact?.email || "",
       phone: data.contact?.phone || "",
-      address: data.contact?.address || "",
+      address: formatAddress(data.contact?.address),
     },
     solution: data.title || "Estimate",
     items,
