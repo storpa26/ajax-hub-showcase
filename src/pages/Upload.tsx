@@ -74,14 +74,10 @@ export default function Upload() {
 
   const handleSubmit = async () => {
     if (!quoteData) return;
-    if (!estimateId || !locationId) {
-      toast({
-        title: "Missing link details",
-        description: "Your upload link is incomplete. Please use the full link with estimateId and locationId.",
-        variant: "destructive",
-      });
-      return;
-    }
+
+    // Fallback for testing: use default location when missing in URL
+    const effectiveEstimateId = estimateId || quoteData.quoteId;
+    const effectiveLocationId = locationId || "aLTXtdwNknfmEFo3WBIX";
 
     const validation = validateSubmission(quoteData);
     if (!validation.valid) {
@@ -101,7 +97,7 @@ export default function Upload() {
         title: "Starting upload...",
         description: "Initializing photo upload session.",
       });
-      const token = await startUploadSession(estimateId, locationId);
+      const token = await startUploadSession(effectiveEstimateId, effectiveLocationId);
 
       // Step 2: Upload all photos and build mappings
       const photoMappings: PhotoMapping[] = [];
@@ -171,14 +167,14 @@ export default function Upload() {
         title: "Mapping photos...",
         description: "Linking photos to estimate items.",
       });
-      await mapPhotosToEstimate(estimateId, locationId, token, photoMappings);
+      await mapPhotosToEstimate(effectiveEstimateId, effectiveLocationId, token, photoMappings);
 
       // Step 4: Apply photos to estimate in GHL
       toast({
         title: "Finalizing...",
         description: "Applying photos to your estimate.",
       });
-      const applyResult = await applyPhotosToEstimate(estimateId, locationId, token);
+      const applyResult = await applyPhotosToEstimate(effectiveEstimateId, effectiveLocationId, token);
 
       // Step 5: Mark as submitted and save
       const updatedData = { ...quoteData, submitted: true };
@@ -190,7 +186,7 @@ export default function Upload() {
         description: `${uploadedPhotos} photos uploaded and applied to your estimate.`,
       });
 
-      navigate(`/thank-you?estimateId=${quoteData.quoteId}${locationId ? `&locationId=${locationId}` : ''}`);
+      navigate(`/thank-you?estimateId=${quoteData.quoteId}${effectiveLocationId ? `&locationId=${effectiveLocationId}` : ''}`);
     } catch (error) {
       console.error("Upload error:", error);
       toast({
@@ -245,10 +241,10 @@ export default function Upload() {
         </Alert>
 
         {!locationId && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
+          <Alert>
+            <Info className="h-4 w-4" />
             <AlertDescription>
-              This link is missing the locationId parameter. Submitting photos requires both estimateId and locationId. Please use the full link provided in your message.
+              No locationId found in your link. Proceeding with a default test location for this session.
             </AlertDescription>
           </Alert>
         )}
