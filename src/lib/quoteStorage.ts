@@ -212,11 +212,10 @@ export function validateSubmission(data: QuoteData): { valid: boolean; message: 
     };
   }
 
-  const minDeviceSlots = Math.ceil(stats.totalSlots * 0.5);
-  if (stats.completedSlots < minDeviceSlots) {
+  if (stats.completedSlots === 0) {
     return {
       valid: false,
-      message: `Please complete at least ${minDeviceSlots} device location slots (currently ${stats.completedSlots} completed).`,
+      message: "Please add at least 1 device location photo before submitting.",
     };
   }
 
