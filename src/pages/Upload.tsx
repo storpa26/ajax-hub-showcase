@@ -136,7 +136,9 @@ export default function Upload() {
 
         for (let slotIndex = 0; slotIndex < slots.length; slotIndex++) {
           const slot = slots[slotIndex];
-          const fileIds: string[] = [];
+          
+
+          const urls: string[] = [];
 
           for (const photo of slot.images) {
             const file = dataUrlToFile(
@@ -148,16 +150,17 @@ export default function Upload() {
               token,
               photo.label || `${item.name} - Location ${slotIndex + 1}`
             );
-            fileIds.push(uploadResult.fileId);
+            if (uploadResult.url) {
+              urls.push(uploadResult.url);
+            }
             uploadedPhotos++;
           }
 
-          if (fileIds.length > 0) {
+          if (urls.length > 0) {
             photoMappings.push({
-              itemIndex,
+              itemKey: item.id,
               itemName: item.name,
-              slotIndex,
-              fileIds,
+              urls,
             });
           }
         }

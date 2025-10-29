@@ -13,10 +13,9 @@ export interface UploadImageResponse {
 }
 
 export interface PhotoMapping {
-  itemIndex: number;
-  itemName: string;
-  slotIndex: number;
-  fileIds: string[];
+  itemKey?: string;
+  itemName?: string;
+  urls: string[];
 }
 
 export interface ApplyPhotosResponse {
@@ -117,7 +116,7 @@ export async function mapPhotosToEstimate(
       estimateId,
       locationId,
       token,
-      photos: photoMappings,
+      uploads: photoMappings,
     }),
   });
 

@@ -1,4 +1,5 @@
 export interface QuoteItem {
+  id?: string;
   sku: string;
   name: string;
   qty: number;
@@ -55,6 +56,7 @@ export async function fetchEstimate(estimateId?: string, locationId?: string): P
   
   // Transform API response to QuoteData format
   const items: QuoteItem[] = (data.items || []).map((item: any, index: number) => ({
+    id: item.id || item._id || undefined,
     sku: `ITEM-${index + 1}`,
     name: item.name || "Unnamed Item",
     qty: item.qty || item.quantity || 1,
