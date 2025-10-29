@@ -1,5 +1,6 @@
 import { QuoteItem } from "@/lib/quoteStorage";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { HtmlDescription } from "@/components/HtmlDescription";
 
 interface ItemsTableProps {
   items: QuoteItem[];
@@ -21,7 +22,9 @@ export function ItemsTable({ items }: ItemsTableProps) {
             <TableRow key={item.sku}>
               <TableCell className="font-medium">{item.name}</TableCell>
               <TableCell className="text-center">{item.qty}</TableCell>
-              <TableCell className="text-muted-foreground">{item.desc}</TableCell>
+              <TableCell>
+                <HtmlDescription html={item.desc} />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
