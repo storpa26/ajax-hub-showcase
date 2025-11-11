@@ -18,18 +18,18 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 1%;
 
     /* CheapAlarms Brand Colors */
-    --primary: 346 77% 52%; /* #c95375 */
+    --primary: 320 100% 70%; /* #ff66c4 - vibrant pink for CTAs */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 346 77% 46%;
+    --primary-hover: 320 100% 65%;
 
-    --secondary: 188 56% 37%; /* #288896 teal */
+    --secondary: 187 99% 29%; /* #018295 - professional teal */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 215 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 320 100% 70%; /* #ff66c4 accent pink */
-    --accent-foreground: 0 0% 1%;
+    --accent: 187 99% 29%; /* teal accent */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
